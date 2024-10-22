@@ -1,5 +1,5 @@
 FROM python:3.11
-WORKDIR /Users/andylenguyen/Documents/MLOps_House_Price_Predict/
+WORKDIR /app
 COPY . . 
 # Python dependency management
 RUN pip install pipenv
