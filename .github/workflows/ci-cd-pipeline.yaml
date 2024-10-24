@@ -40,11 +40,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Install Homebrew (if necessary) and then google-cloud-sdk
-      - name: Install Homebrew and google-cloud-sdk
+      # Install Google Cloud CLI (instead of SDK)
+      - name: Install Google Cloud CLI
         run: |
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || true
-          brew install google-cloud-sdk
+          sudo apt-get update && sudo apt-get install -y google-cloud-cli
 
       # Authenticate with Google Cloud to push Docker image
       - name: Authenticate to Google Cloud
