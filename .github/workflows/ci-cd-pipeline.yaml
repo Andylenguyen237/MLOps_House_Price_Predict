@@ -40,12 +40,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Set up Google Cloud SDK and authenticate using google-github-actions/setup-gcloud
-      - name: Authenticate with Google Cloud
+      # Set up Google Cloud SDK with service account authentication
+      - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT }}
+          export_default_credentials: true
+
+      # Authenticate Docker to GCR
+      - name: Authenticate Docker with GCR
+        run: |
+          gcloud auth configure-docker gcr.io --quiet
 
       # Build Docker Image
       - name: Build Docker Image
@@ -57,7 +63,7 @@ jobs:
         run: |
           docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict:latest
 
-      # Set up Kubeconfig for GKE using Google Cloud SDK
+      # Authenticate kubectl with GKE
       - name: Set up Kubeconfig for GKE
         run: |
           gcloud container clusters get-credentials house-price --zone us-central1-c --project ${{ secrets.GCP_PROJECT }}
