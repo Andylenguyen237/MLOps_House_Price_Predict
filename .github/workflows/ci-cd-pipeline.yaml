@@ -24,6 +24,10 @@ jobs:
           pip install pipenv
           pipenv install --dev
 
+      # Step to train the model and generate artefacts
+      - name: Train Model
+        run: pipenv run python model_api.py tune
+
       - name: Run Unit Tests
         run: pipenv run pytest tests/
 
