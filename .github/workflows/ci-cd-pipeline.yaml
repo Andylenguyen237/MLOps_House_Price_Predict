@@ -40,25 +40,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Install Google Cloud SDK directly
-      - name: Install Google Cloud SDK
-        run: |
-          curl -sSL https://sdk.cloud.google.com | bash > /dev/null
-          echo "source /home/runner/google-cloud-sdk/path.bash.inc" >> $HOME/.bashrc
-          source /home/runner/google-cloud-sdk/path.bash.inc
-          gcloud components install kubectl
-          gcloud components update
-
-      # Write the raw GCP Service Account JSON Key to a file
-      - name: Write GCP Service Account Key
-        run: |
-          echo "${{ secrets.GCP_SA_KEY }}" > $HOME/gcp-key.json
-
-      # Authenticate with Google Cloud using the key
-      - name: Authenticate to Google Cloud
-        run: |
-          gcloud auth activate-service-account --key-file=$HOME/gcp-key.json
-          gcloud config set project ${{ secrets.GCP_PROJECT }}
+      # Set up Google Cloud SDK and authenticate using google-github-actions/setup-gcloud
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
 
       # Build Docker Image
       - name: Build Docker Image
@@ -70,7 +57,7 @@ jobs:
         run: |
           docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict:latest
 
-      # Authenticate kubectl with GKE
+      # Set up Kubeconfig for GKE using Google Cloud SDK
       - name: Set up Kubeconfig for GKE
         run: |
           gcloud container clusters get-credentials house-price --zone us-central1-c --project ${{ secrets.GCP_PROJECT }}
