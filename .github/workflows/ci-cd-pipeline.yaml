@@ -49,19 +49,19 @@ jobs:
           export_default_credentials: true
 
       # Authenticate Docker to GCR
-      - name: Authenticate Docker with Artifact Registry
+      - name: Authenticate Docker with GCR
         run: |
-          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
+          gcloud auth configure-docker us-central1-docker.pkg.dev
 
       # Build Docker Image
       - name: Build Docker Image
         run: |
-          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict/mlops_house_price_predict:latest .
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict:latest .
 
       # Push Docker Image to GCR
-      - name: Push Docker Image to Artifact Registry
+      - name: Push Docker Image to GCR
         run: |
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict/mlops_house_price_predict:latest
+          docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict:latest
 
       # Authenticate kubectl with GKE
       - name: Set up Kubeconfig for GKE
