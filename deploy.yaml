@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: house-price-predict
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: house-price-predict
+  template:
+    metadata:
+      labels:
+        app: house-price-predict
+    spec:
+      containers:
+        - name: mlops-house-price-predict
+          image: gcr.io/mlops-house-predict/mlops_house_price_predict:latest
+          ports:
+            - containerPort: 5000
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "3Gi"
+              cpu: "2"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: house-price-predict-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: house-price-predict
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000

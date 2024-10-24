@@ -1,22 +1,25 @@
 FROM python:3.11
 
-# Working directory in the container
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy the Pipfile and Pipfile.lock to install dependencies
+COPY Pipfile Pipfile.lock /app/
 
-# Install pipenv
+# Install pipenv to manage dependencies
 RUN pip install pipenv
 
-# Install the dependencies from Pipfile.lock
+# Install dependencies from Pipfile.lock
 RUN pipenv install 
 
-# Port on which the Flask app will run
+# Copy the entire app, including model_api.py and the dataset
+COPY . /app
+
+# Expose the port 
 EXPOSE 5000
 
-# Command to run the application
-CMD [ "pipenv", "run", "python", "model_api.py" ]
+# Run the Flask application
+CMD ["pipenv", "run", "python", "model_api.py"]
 
 
 

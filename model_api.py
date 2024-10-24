@@ -15,6 +15,7 @@ app = Flask(__name__)
 ARTEFACTS_DIR = "artefacts"
 BEST_MODEL_PATH = os.path.join(ARTEFACTS_DIR, 'best_model.pkl')
 ARTEFACTS_FILE = os.path.join(ARTEFACTS_DIR, 'tuning_artefacts.json')
+DATASET_PATH = "boston_dataset.txt"
 os.makedirs(ARTEFACTS_DIR, exist_ok=True)
 
 
@@ -31,11 +32,13 @@ def load_boston_dataset():
     return: data (13 features) with MEDV as the target (label)
     """
 
-    data_url = "http://lib.stat.cmu.edu/datasets/boston"
-    raw_df = pd.read_csv(data_url, sep="\s+", skiprows=22, header=None)
-    data = np.hstack(
-        [raw_df.values[::2, :], raw_df.values[1::2, :2]])  # 13 FEATURES
-    target = raw_df.values[1::2, 2]  # MEDV
+    if os.path.exists(DATASET_PATH):
+        raw_df = pd.read_csv(DATASET_PATH, sep="\s+", skiprows=22, header=None)
+        data = np.hstack(
+            [raw_df.values[::2, :], raw_df.values[1::2, :2]])  # 13 FEATURES
+        target = raw_df.values[1::2, 2]  # MEDV
+    else:
+        raise FileExistsError("Err: Dataset not found")
 
     return data, target
 
