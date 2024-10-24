@@ -40,10 +40,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Install Google Cloud CLI (instead of SDK)
-      - name: Install Google Cloud CLI
+      # Install Homebrew and google-cloud-cli
+      - name: Install Homebrew and google-cloud-cli
         run: |
-          sudo apt-get update && sudo apt-get install -y google-cloud-cli
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || true
+          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bashrc
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install google-cloud-cli
 
       # Authenticate with Google Cloud to push Docker image
       - name: Authenticate to Google Cloud
@@ -68,9 +71,6 @@ jobs:
       - name: Set up Kubeconfig for GKE
         run: |
           gcloud container clusters get-credentials house-price --zone us-central1-c --project ${{ secrets.GCP_PROJECT }}
-        env:
-          GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
 
       # Deploy to Kubernetes
       - name: Deploy to Kubernetes
