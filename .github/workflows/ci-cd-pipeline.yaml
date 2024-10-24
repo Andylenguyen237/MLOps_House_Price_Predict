@@ -46,7 +46,7 @@ jobs:
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || true
           echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bashrc
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install google-cloud-cli
+          brew install google-cloud-sdk
 
       # Authenticate with Google Cloud to push Docker image
       - name: Authenticate to Google Cloud
