@@ -51,11 +51,7 @@ jobs:
       # Decode the base64-encoded GCP service account key
       - name: Decode GCP Service Account Key
         run: |
-          echo "${{ secrets.GCP_SA_KEY_B64 }}" | base64 -d > $HOME/gcp-key.json
-
-      # Verify if the JSON file is correct
-      - name: Check JSON file
-        run: cat $HOME/gcp-key.json
+          echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > $HOME/gcp-key.json
 
       # Authenticate with Google Cloud using the decoded key
       - name: Authenticate to Google Cloud
