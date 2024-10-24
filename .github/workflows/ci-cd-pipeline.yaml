@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   test:
@@ -24,10 +24,6 @@ jobs:
           pip install pipenv
           pipenv install --dev
 
-      # Step to train the model and generate artefacts
-      - name: Train Model
-        run: pipenv run python model_api.py tune
-
       - name: Run Unit Tests
         run: pipenv run pytest tests/
 
@@ -40,12 +36,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Install gcloud SDK
-      - name: Install gcloud SDK
+      # Install Homebrew and then google-cloud-sdk
+      - name: Install Homebrew and google-cloud-sdk
         run: |
-          sudo apt-get install -y apt-transport-https ca-certificates gnupg
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          sudo apt-get install -y google-cloud-sdk
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || true
+          brew install google-cloud-sdk
 
       # Authenticate with Google Cloud to push Docker image
       - name: Authenticate to Google Cloud
