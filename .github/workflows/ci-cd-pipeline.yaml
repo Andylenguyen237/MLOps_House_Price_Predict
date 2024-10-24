@@ -24,7 +24,6 @@ jobs:
           pip install pipenv
           pipenv install --dev
 
-      # Train model and generate artefacts
       - name: Train Model
         run: pipenv run python model_api.py tune
 
@@ -40,28 +39,28 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Set up Google Cloud SDK with service account authentication
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+      # Authenticate with Google Cloud SDK
+      - name: Set up Google Cloud authentication
+        uses: google-github-actions/setup-gcloud@master
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ secrets.GCP_PROJECT }}
           export_default_credentials: true
 
-      # Authenticate Docker to GCR
-      - name: Authenticate Docker with GCR
+      # Authenticate Docker for Artifact Registry
+      - name: Authenticate Docker with Artifact Registry
         run: |
-          gcloud auth configure-docker gcr.io --quiet
+          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
 
       # Build Docker Image
       - name: Build Docker Image
         run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict:latest .
+          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict/mlops_house_price_predict:latest .
 
-      # Push Docker Image to GCR
-      - name: Push Docker Image to GCR
+      # Push Docker Image to Artifact Registry
+      - name: Push Docker Image to Artifact Registry
         run: |
-          docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict:latest
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict/mlops_house_price_predict:latest
 
       # Authenticate kubectl with GKE
       - name: Set up Kubeconfig for GKE
