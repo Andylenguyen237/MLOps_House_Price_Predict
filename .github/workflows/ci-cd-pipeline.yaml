@@ -24,6 +24,10 @@ jobs:
           pip install pipenv
           pipenv install --dev
 
+      # Step to train the model and generate artefacts
+      - name: Train Model
+        run: pipenv run python model_api.py tune
+
       - name: Run Unit Tests
         run: pipenv run pytest tests/
 
@@ -36,7 +40,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Install Homebrew and then google-cloud-sdk
+      # Install Homebrew (if necessary) and then google-cloud-sdk
       - name: Install Homebrew and google-cloud-sdk
         run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || true
