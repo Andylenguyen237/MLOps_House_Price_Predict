@@ -24,6 +24,7 @@ jobs:
           pip install pipenv
           pipenv install --dev
 
+      # Train model and generate artefacts
       - name: Train Model
         run: pipenv run python model_api.py tune
 
@@ -39,15 +40,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Authenticate with Google Cloud SDK
-      - name: Set up Google Cloud authentication
-        uses: google-github-actions/setup-gcloud@master
+      # Set up Google Cloud SDK with service account authentication
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ secrets.GCP_PROJECT }}
           export_default_credentials: true
 
-      # Authenticate Docker for Artifact Registry
+      # Authenticate Docker to GCR
       - name: Authenticate Docker with Artifact Registry
         run: |
           gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
@@ -57,7 +58,7 @@ jobs:
         run: |
           docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict/mlops_house_price_predict:latest .
 
-      # Push Docker Image to Artifact Registry
+      # Push Docker Image to GCR
       - name: Push Docker Image to Artifact Registry
         run: |
           docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict/mlops_house_price_predict:latest
