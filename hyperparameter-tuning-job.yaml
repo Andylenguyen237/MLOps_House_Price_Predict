@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rf-hyperparameter-tuning
+spec:
+  parallelism: 5
+  completions: 5
+  template:
+    spec:
+      containers:
+        - name: mlops-house-price-predict
+          image: gcr.io/mlops-house-predict/mlops_house_price_predict:latest
+          command: ["pipenv", "run", "python", "model_api.py", "tune"]
+      restartPolicy: Never
+  backoffLimit: 4

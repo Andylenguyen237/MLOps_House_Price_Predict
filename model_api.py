@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import os
 import json
+import sys
 import joblib
 import pandas as pd
 import numpy as np
@@ -142,4 +143,10 @@ def get_artefacts():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+
+    # check if "tune" is passed for hyperparameter tuning job
+    if len(sys.argv) > 1 and sys.argv[1] == "tune":
+        build_rf_model()
+    # Run flask server
+    else:
+        app.run(host='0.0.0.0', port=5000, debug=True)
