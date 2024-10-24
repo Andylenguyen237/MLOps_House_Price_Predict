@@ -40,13 +40,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Install Homebrew and google-cloud-cli
-      - name: Install Homebrew and google-cloud-cli
+      # Install Google Cloud SDK directly
+      - name: Install Google Cloud SDK
         run: |
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || true
-          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bashrc
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install google-cloud-sdk
+          curl -sSL https://sdk.cloud.google.com | bash
+          exec -l $SHELL
+          gcloud components install kubectl
+          gcloud components update
 
       # Authenticate with Google Cloud to push Docker image
       - name: Authenticate to Google Cloud
