@@ -49,13 +49,12 @@ jobs:
           gcloud components install kubectl
           gcloud components update
 
-      # Decode and Verify the base64-encoded GCP service account key
-      - name: Decode and Verify GCP Service Account Key
+      # Write the raw GCP Service Account JSON Key to a file
+      - name: Write GCP Service Account Key
         run: |
-          echo "${{ secrets.GCP_SA_KEY_B64 }}" | base64 -d > $HOME/gcp-key.json
-          cat $HOME/gcp-key.json
+          echo "${{ secrets.GCP_SA_KEY }}" > $HOME/gcp-key.json
 
-      # Authenticate with Google Cloud using the decoded key
+      # Authenticate with Google Cloud using the key
       - name: Authenticate to Google Cloud
         run: |
           gcloud auth activate-service-account --key-file=$HOME/gcp-key.json
