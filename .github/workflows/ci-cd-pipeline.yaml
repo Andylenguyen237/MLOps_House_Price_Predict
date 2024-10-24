@@ -43,15 +43,17 @@ jobs:
       # Install Google Cloud SDK directly
       - name: Install Google Cloud SDK
         run: |
-          curl -sSL https://sdk.cloud.google.com | bash
-          exec -l $SHELL
+          curl -sSL https://sdk.cloud.google.com | bash > /dev/null
+          echo "source /home/runner/google-cloud-sdk/path.bash.inc" >> $HOME/.bashrc
+          source /home/runner/google-cloud-sdk/path.bash.inc
           gcloud components install kubectl
           gcloud components update
 
-      # Decode the base64-encoded GCP service account key
-      - name: Decode GCP Service Account Key
+      # Decode and Verify the base64-encoded GCP service account key
+      - name: Decode and Verify GCP Service Account Key
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > $HOME/gcp-key.json
+          echo "${{ secrets.GCP_SA_KEY_B64 }}" | base64 -d > $HOME/gcp-key.json
+          cat $HOME/gcp-key.json
 
       # Authenticate with Google Cloud using the decoded key
       - name: Authenticate to Google Cloud
