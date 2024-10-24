@@ -58,7 +58,7 @@ jobs:
       # Authenticate with Google Cloud using the decoded key
       - name: Authenticate to Google Cloud
         run: |
-          gcloud auth activate-service-account ${{ secrets.ACCOUNT }} --key-file=$HOME/gcp-key.json
+          gcloud auth activate-service-account --key-file=$HOME/gcp-key.json
           gcloud config set project ${{ secrets.GCP_PROJECT }}
 
       # Build Docker Image
