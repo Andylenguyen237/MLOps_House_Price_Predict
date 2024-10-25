@@ -53,19 +53,22 @@ jobs:
         env:
           IMAGE_NAME: mlops_house_price_predict
           PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-        run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/$IMAGE_NAME:latest .
+        run: |-
+          docker build -t andy237/$IMAGE_NAME .
+          docker build -t gcr.io/$PROJECT_ID/$IMAGE_NAME:latest .
 
       # Configure Docker Client for GCR
       - name: Configure Docker Client for GCR
         run: gcloud auth configure-docker --quiet
 
+      # Push Docker Image to GCR
       - name: Push Docker Image to GCR
         env:
           IMAGE_NAME: mlops_house_price_predict
           PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-        run: |
-          docker tag $IMAGE_NAME:latest gcr.io/$PROJECT_ID/$IMAGE_NAME:latest
+        run: |-
+          docker push andy237/$IMAGE_NAME
+          docker tag andy237/$IMAGE_NAME:latest gcr.io/$PROJECT_ID/$IMAGE_NAME:latest
           docker push gcr.io/$PROJECT_ID/$IMAGE_NAME:latest
 
       # Extract metadata (tags, labels) for Docker GHCR
