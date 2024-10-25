@@ -50,14 +50,16 @@ jobs:
 
       # Build Docker Image
       - name: Build Docker Image
+        env:
+          IMAGE_NAME: mlops_house_price_predict
+          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
         run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict:latest .
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/$IMAGE_NAME:latest .
 
       # Configure Docker Client for GCR
       - name: Configure Docker Client for GCR
         run: gcloud auth configure-docker --quiet
 
-      # Push Docker Image to GCR
       - name: Push Docker Image to GCR
         env:
           IMAGE_NAME: mlops_house_price_predict
