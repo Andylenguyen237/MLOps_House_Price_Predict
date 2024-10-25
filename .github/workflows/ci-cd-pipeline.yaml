@@ -68,15 +68,14 @@ jobs:
       - name: Configure Docker Client for GCR
         run: gcloud auth configure-docker --quiet
 
-      # Push Docker Image to Docker Hub and GCR
-      - name: Push Docker Image to Docker Hub and GCR
+      # Push Docker Image to Artifact Registry
+      - name: Push Docker Image to Artifact Registry
         env:
           IMAGE_NAME: mlops_house_price_predict
           PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-        run: |-
-          docker push andy237/$IMAGE_NAME
-          docker tag andy237/$IMAGE_NAME:latest us.gcr.io/$PROJECT_ID/$IMAGE_NAME:latest
-          docker push us.gcr.io/$PROJECT_ID/$IMAGE_NAME:latest
+        run: |
+          docker tag $IMAGE_NAME:latest us-central1-docker.pkg.dev/$PROJECT_ID/mlops_house_price_predict:latest
+          docker push us-central1-docker.pkg.dev/$PROJECT_ID/mlops_house_price_predict:latest
 
       # Extract metadata (tags, labels) for Docker GHCR
       - name: Extract metadata for GHCR
