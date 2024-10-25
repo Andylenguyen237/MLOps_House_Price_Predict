@@ -31,44 +31,32 @@ jobs:
       - name: Run Unit Tests
         run: pipenv run pytest tests/
 
-  build-and-deploy:
-    needs: test
+  build-and-push-to-gcr:
     runs-on: ubuntu-latest
-    if: success()
-
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      # Set up Google Cloud SDK with service account authentication
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+      # Authenticate to Google Cloud using Workload Identity
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
         with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: ${{ secrets.GCP_PROJECT }}
-          export_default_credentials: true
+          workload_identity_provider: "projects/mlops-house-predict/locations/global/workloadIdentityPools/house-price-pool/providers/house-price-pool-provider"
+          service_account: "house-price-demo@mlops-house-predict.iam.gserviceaccount.com"
 
-      # Authenticate Docker to GCR
-      - name: Authenticate Docker with GCR
-        run: |
-          gcloud auth configure-docker --quiet
-          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
-          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
-
-      # Build Docker Image
-      - name: Build Docker Image
-        run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict:latest .
-
-      # Push Docker Image to Artifact Registry
-      - name: Push Docker Image to Artifact Registry
-        run: |
-          docker push gcr.io/${{ secrets.GCP_PROJECT }}/mlops_house_price_predict:latest
-
-      # Authenticate kubectl with GKE
-      - name: Set up Kubeconfig for GKE
-        run: |
-          gcloud container clusters get-credentials house-price --zone us-central1-c --project ${{ secrets.GCP_PROJECT }}
+      # Build and push Docker image to GCR
+      - name: Build and Push to GCR
+        uses: RafikFarhad/push-to-gcr-github-action@v5-rc1
+        with:
+          registry: gcr.io
+          project_id: "mlops-house-predict"
+          image_name: "mlops_house_price_predict"
+          image_tag: latest,v1
+          dockerfile: "./Dockerfile"
+          context: "."
 
       # Deploy to Kubernetes
       - name: Deploy to Kubernetes
