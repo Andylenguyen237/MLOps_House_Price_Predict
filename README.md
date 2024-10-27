@@ -16,6 +16,84 @@ The model training process involves building and tuning a [Random Forest Regress
 We will go step by step (running and testing) from the beginning to deploy a ML model 
 
 ### Set up
+#### Step 0: Initialize Git Repository
+Create and clone the Git repository:
+   ```
+   git init
+   git clone <repository-url>
+   ```
+
+#### Step 1: Set Up Docker and Project Files
+Create the following essential files:
+`Dockerfile` 
+`.dockerignore` 
+`api.py` : to build and perform model tuning (written using Python's `Flask`
+
+#### Step 2: Set Up the Python Environment with Pipenv
+Initialize Pipenv to create `Pipfile` and `Pipfile.lock`:
+`pipenv install <package>`
+
+#### Step 3: Build and Push Docker Image
+Build the Docker image:
+`docker build --tag your-docker-hub-username/mlops_house_price_predict .`
+Test the Docker image locally:
+`docker run --rm --name test-api -p 5000:5000 your-docker-hub-username/mlops_house_price_predict`
+Push the Docker image to Docker Hub:
+`docker push your-docker-hub-username/mlops_house_price_predict`
+Model and API Endpoints
+`/predict [POST]`: Accepts 13 features from the user and returns the predicted house price.
+`/artefacts [GET]`: Retrieves grid search trials and evaluation scores.
+
+#### Step 4: Kubernetes Deployment
+1. Set Up GCP and Kubernetes
+Install the GCP SDK:
+`brew install google-cloud-sdk`
+Initialize GCP configuration:
+`gcloud init`
+Enable the Kubernetes Engine API and create a cluster:
+`gcloud container clusters create house-price --num-nodes 5 --machine-type e2-medium`
+2. Authenticate Docker with GCP
+Configure Docker to push images to Google Container Registry:
+`gcloud auth configure-docker`
+Build and tag Docker image for GCP:
+`docker build -t gcr.io/<project-id>/mlops_house_price_predict:latest .`
+`docker tag your-docker-hub-username/mlops_house_price_predict:latest gcr.io/<project-id>/mlops_house_price_predict:latest`
+Push the Docker image to Google Container Registry:
+`docker push gcr.io/<project-id>/mlops_house_price_predict:latest`
+Apply Kubernetes configurations:
+`kubectl apply -f deploy.yaml`
+
+[!NOTE]Troubleshooting
+- [x] CrashLoopBackOff due to insufficient memory --> Solution: Adjust resource limits in the yaml configuration file.
+- [ ] 
+
+
+Enable autoscaling:
+`kubectl autoscale deployment house-price-predict --cpu-percent=50 --min=2 --max=10`
+
+- Testing Kubernetes Deployment
+Retrieve services:
+`kubectl get services`
+Test the endpoint:
+`curl http://<EXTERNAL-IP>/`
+Parallel Hyperparameter Tuning with Kubernetes Jobs
+Configure parallel jobs in hyperparameter-tuning.yaml.
+Apply the configuration:
+`kubectl apply -f hyperparameter-tuning.yaml`
+Monitor job status:
+```
+kubectl get jobs
+kubectl get pods
+```
+Autoscaling the Kubernetes Cluster
+Enable cluster autoscaling:
+```
+gcloud container clusters update house-price \
+    --enable-autoscaling \
+    --min-nodes 1 \
+    --max-nodes 10 \
+    --zone us-central1-c
+```
 
 
 
